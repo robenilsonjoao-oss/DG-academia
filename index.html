@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DG Academia - App Treino</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#E50914',
+                            redHover: '#b80710',
+                            dark: '#0A0A0A',
+                            card: '#161616',
+                            border: '#2A2A2A',
+                            grayText: '#A1A1AA'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- html2pdf.js for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #F3F4F6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom scrollbar for mobile sleek look */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E50914;
+        }
+
+        /* Glow effects */
+        .red-glow {
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.25);
+        }
+        .red-text-glow {
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+        }
+
+        /* Smooth tab transition */
+        .page-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .page-view.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 md:pb-6 antialiased flex flex-col justify-between">
+
+    <!-- TOP HEADER / BRANDING BAR -->
+    <header id="main-header" class="sticky top-0 z-40 bg-[#0A0A0A]/95 backdrop-blur border-b border-brand-border px-4 py-3 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <!-- DG LOGO BADGE SVG / ICON REPRESENTATION -->
+            <div class="relative w-11 h-11 rounded-full bg-black border-2 border-brand-red flex items-center justify-center overflow-hidden shadow-md">
+                <svg viewBox="0 0 200 200" class="w-full h-full p-1">
+                    <circle cx="100" cy="100" r="95" fill="#000000" />
+                    <!-- Barbell behind -->
+                    <rect x="20" y="93" width="160" height="14" fill="#888" rx="3" />
+                    <rect x="35" y="70" width="12" height="60" fill="#AAA" rx="2" />
+                    <rect x="25" y="78" width="8" height="44" fill="#666" rx="2" />
+                    <rect x="153" y="70" width="12" height="60" fill="#AAA" rx="2" />
+                    <rect x="167" y="78" width="8" height="44" fill="#666" rx="2" />
+                    <!-- Body silhouette -->
+                    <path d="M 80 55 Q 100 40 120 55 Q 140 70 140 95 L 60 95 Q 60 70 80 55 Z" fill="#666" opacity="0.6"/>
+                    <!-- D in White -->
+                    <text x="65" y="115" font-family="Arial, sans-serif" font-weight="900" font-size="52" fill="#FFFFFF">D</text>
+                    <!-- G in Red -->
+                    <text x="105" y="115" font-family="Arial, sans-serif" font-weight="900" font-size="52" fill="#E50914">G</text>
+                    <text x="45" y="150" font-family="Arial, sans-serif" font-weight="800" font-size="22" fill="#E0E0E0" letter-spacing="3">ACADEMIA</text>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-black tracking-wider text-white flex items-center">
+                    <span class="text-white">D</span><span class="text-brand-red font-extrabold mr-1">G</span>
+                    <span class="text-xs font-semibold uppercase tracking-widest text-gray-300 ml-1 border-l border-brand-border pl-2">Academia</span>
+                </h1>
+                <p class="text-[10px] text-brand-grayText uppercase tracking-widest font-semibold">Ficha de Treino Digital</p>
+            </div>
+        </div>
+
+        <!-- User Quick Actions / Logout -->
+        <div id="header-user-actions" class="hidden items-center space-x-2">
+            <span id="user-display-name" class="text-xs font-semibold text-gray-300 hidden sm:inline"></span>
+            <button onclick="logout()" title="Sair da conta" class="p-2 text-gray-400 hover:text-brand-red bg-brand-card border border-brand-border rounded-xl hover:border-brand-red/50 transition">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-2xl mx-auto w-full px-4 py-4 flex-1">
+
+        <!-- VIEW 1: LOGIN SCREEN -->
+        <section id="view-login" class="page-view active">
+            <div class="mt-4 bg-brand-card border border-brand-border rounded-2xl p-6 shadow-2xl red-glow">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-4 rounded-full bg-brand-red/10 border border-brand-red/20 mb-3">
+                        <i class="fa-solid fa-dumbbell text-3xl text-brand-red"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-white">Área do Aluno</h2>
+                    <p class="text-xs text-brand-grayText mt-1">Acesse seus treinos e acompanhe sua evolução</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Matrícula ou Email</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-id-card absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
+                            <input type="text" id="login-id" required placeholder="Ex: DG-2026 ou seu email" 
+                                class="w-full bg-black/60 border border-brand-border rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-brand-red transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-1">Senha</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
+                            <input type="password" id="login-pass" required placeholder="••••••••" 
+                                class="w-full bg-black/60 border border-brand-border rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-brand-red transition">
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-brand-red hover:bg-brand-redHover text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition transform active:scale-[0.98] flex items-center justify-center space-x-2">
+                            <span>ENTRAR NO APP</span>
+                            <i class="fa-solid fa-arrow-right text-sm"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 text-center text-xs text-brand-grayText border-t border-brand-border/60 pt-4">
+                    Primeiro acesso? Utilize qualquer identificação para testar o sistema.
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: PROFILE & PERSONAL DATA SCREEN -->
+        <section id="view-profile" class="page-view">
+            <div class="bg-brand-card border border-brand-border rounded-2xl p-5 shadow-xl mb-4">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-brand-border">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-xl bg-brand-red/20 border border-brand-red flex items-center justify-center text-brand-red text-xl font-bold">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-white" id="prof-display-name">Nome do Aluno</h2>
+                            <p class="text-xs text-brand-red font-semibold" id="prof-display-id">Matrícula: DG-0000</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleEditProfileModal()" class="px-3 py-1.5 bg-brand-border hover:bg-gray-800 text-xs font-bold rounded-lg border border-gray-700 text-gray-200 transition flex items-center space-x-1">
+                        <i class="fa-solid fa-pen-to-square text-brand-red"></i>
+                        <span>Editar</span>
+                    </button>
+                </div>
+
+                <!-- Personal Info Cards Grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-black/40 border border-brand-border p-3 rounded-xl">
+                        <span class="text-[10px] uppercase font-bold text-brand-grayText block">Idade</span>
+                        <span class="text-base font-extrabold text-white" id="info-age">-- anos</span>
+                    </div>
+                    <div class="bg-black/40 border border-brand-border p-3 rounded-xl">
+                        <span class="text-[10px] uppercase font-bold text-brand-grayText block">Peso</span>
+                        <span class="text-base font-extrabold text-white" id="info-weight">-- kg</span>
+                    </div>
+                    <div class="bg-black/40 border border-brand-border p-3 rounded-xl">
+                        <span class="text-[10px] uppercase font-bold text-brand-grayText block">Altura</span>
+                        <span class="text-base font-extrabold text-white" id="info-height">-- cm</span>
+                    </div>
+                    <div class="bg-black/40 border border-brand-border p-3 rounded-xl">
+                        <span class="text-[10px] uppercase font-bold text-brand-grayText block">Objetivo</span>
+                        <span class="text-sm font-extrabold text-brand-red truncate block" id="info-objective">Hipertrofia</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-brand-border/60 flex justify-between items-center text-xs text-brand-grayText">
+                    <span>Data de Início: <strong class="text-gray-300" id="info-startdate">01/01/2026</strong></span>
+                    <span>Instrutor: <strong class="text-gray-300" id="info-instructor">Equipe DG</strong></span>
+                </div>
+            </div>
+
+            <!-- Quick Action: Export / Download Profile PDF -->
+            <div class="bg-gradient-to-r from-brand-card to-black border border-brand-border p-4 rounded-2xl flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-white">Ficha em PDF</h3>
+                    <p class="text-xs text-brand-grayText">Baixe sua ficha de treinos completa com seus dados</p>
+                </div>
+                <button onclick="downloadPDF()" class="bg-brand-red hover:bg-brand-redHover text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-file-pdf text-sm"></i>
+                    <span>BAIXAR</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 3: WORKOUT ROUTINE SCREEN (Ficha Editável e Dinâmica) -->
+        <section id="view-workout" class="page-view">
+            <!-- Workout Days Tabs Selector -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4 scrollbar-none" id="workout-tabs">
+                <!-- Tabs will be rendered dynamically by JavaScript -->
+            </div>
+
+            <!-- Active Workout Header & Actions -->
+            <div class="flex items-center justify-between mb-4 bg-brand-card border border-brand-border p-3.5 rounded-xl">
+                <div>
+                    <h2 class="text-base font-black text-white uppercase tracking-wide flex items-center gap-2" id="current-workout-title">
+                        Treino A
+                    </h2>
+                    <p class="text-xs text-brand-red font-semibold" id="current-workout-focus">Peito e Tríceps</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="openAddExerciseModal()" class="bg-brand-red hover:bg-brand-redHover text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow transition flex items-center space-x-1">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Exercício</span>
+                    </button>
+                    <button onclick="openAddWorkoutModal()" class="bg-black border border-brand-border hover:border-brand-red text-gray-300 hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition" title="Novo Treino/Dia">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Exercises List -->
+            <div class="space-y-3" id="exercise-list">
+                <!-- Exercises items rendered dynamically -->
+            </div>
+
+            <!-- Empty State if no exercises -->
+            <div id="empty-exercise-state" class="hidden text-center py-10 bg-brand-card/50 border border-dashed border-brand-border rounded-2xl p-6">
+                <i class="fa-solid fa-dumbbell text-4xl text-gray-600 mb-3"></i>
+                <p class="text-sm font-bold text-gray-400">Nenhum exercício cadastrado nesta ficha.</p>
+                <p class="text-xs text-brand-grayText mt-1">Clique no botão abaixo para adicionar.</p>
+                <button onclick="openAddExerciseModal()" class="mt-4 bg-brand-red text-white text-xs font-bold px-4 py-2 rounded-xl">
+                    + Adicionar Primeiro Exercício
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION BAR (Android App Feel) -->
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-brand-card/95 backdrop-blur border-t border-brand-border px-6 py-2 shadow-2xl hidden">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            <button onclick="switchTab('workout')" id="nav-btn-workout" class="flex flex-col items-center py-1 px-3 text-brand-red transition">
+                <i class="fa-solid fa-clipboard-list text-lg mb-0.5"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Treinos</span>
+            </button>
+
+            <button onclick="switchTab('profile')" id="nav-btn-profile" class="flex flex-col items-center py-1 px-3 text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-id-card-clip text-lg mb-0.5"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Perfil</span>
+            </button>
+
+            <button onclick="downloadPDF()" class="flex flex-col items-center py-1 px-3 text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-file-arrow-down text-lg mb-0.5"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Baixar</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL: EDIT PROFILE -->
+    <div id="modal-edit-profile" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-2xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-brand-border">
+                <h3 class="text-base font-black text-white uppercase">Editar Dados Pessoais</h3>
+                <button onclick="toggleEditProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="saveProfile(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-brand-grayText mb-1">Nome Completo</label>
+                    <input type="text" id="edit-name" required class="w-full bg-black border border-brand-border rounded-xl p-2.5 text-sm text-white focus:border-brand-red outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-brand-grayText mb-1">Idade</label>
+                        <input type="number" id="edit-age" required class="w-full bg-black border border-brand-border rounded-xl p-2.5 text-sm text-white focus:border-brand-red outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-brand-grayText mb-1">Peso (kg)</label>
+                        <input type="text" id="edit-weight" required class="w-full bg-black border border-brand-border rounded-xl p-2.5 text-sm text-white focus:border-brand-red outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-brand-grayText mb-1">Altura (cm)</label>
+                        <input type="number" id="edit-height" required class="w-full bg-black border border-brand-border rounded-xl p-2.5 text-sm text-white focus:border-brand-red outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-brand-grayText mb-1">Objetivo</label>
+                    <select id="edit-objective" class="w-full bg-black border border-brand-border rounded-xl p-2.5 text-sm text-white focus:border-brand-red outline-none">
+                        <option value="Hipertrofia">Hipertrofia</option>
+                        <option value="Emagrecimento / Definição">Emagrecimento / Definição</option>
+                        <option value="Condicionamento Físico">Condicionamento Físico</option>
+                        <option value="Força Bruta">Força Bruta</option>
+                        <option value="Saúde & Bem-Estar">Saúde & Bem-Estar</option>
+                    </select>
+                </div>
+                <div class="pt-3 flex space-x-2">
+                    <button type="button" onclick="toggleEditProfileModal()" class="w-1/2 bg-black border border-brand-border text-gray-300 py-2.5 rounded-xl text-xs font-bold">Cancelar</button>
+                    <button type="submit" class="w-1/2 bg-brand-red text-white py-2.5 rounded-xl text-xs font-bold">Salvar Dados</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD/EDIT EXERCISE -->
+    <div id="modal-exercise" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border w-full max-w-md rounded-2xl p-5 shadow-2xl">
+  
